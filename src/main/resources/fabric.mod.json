@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "koreanpatch",
+  "version": "${version}",
+
+  "name": "한국인 패치",
+  "description": "한국 플레이어를 위한 클라이언트 편의 모음 — 초성/영타 검색, 폰트 교체, 간소화 F3, 인게임 서버 목록.",
+  "authors": [
+    "Hyper spruce"
+  ],
+  "license": "MIT",
+  "environment": "client",
+
+  "entrypoints": {
+    "client": [
+      "kr.hyperspruce.koreanpatch.KoreanPatch"
+    ]
+  },
+  "mixins": [
+    "koreanpatch.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=${java_version}"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "koreanpatch.esc.screenshot": "스크린샷 폴더",
+  "koreanpatch.esc.servers": "서버 목록",
+  "koreanpatch.esc.font": "폰트 설정",
+
+  "koreanpatch.screenshot.failed": "스크린샷 폴더를 열지 못했습니다.",
+
+  "koreanpatch.font.title": "폰트 설정",
+  "koreanpatch.font.vanilla": "기본 글꼴 (마인크래프트)",
+  "koreanpatch.font.selected": "▶ %s",
+  "koreanpatch.font.search": "폰트 검색 (초성 가능)",
+  "koreanpatch.font.size": "글자 크기 : %s%%",
+  "koreanpatch.font.priority.mod": "우선순위 : 이 폰트",
+  "koreanpatch.font.priority.pack": "우선순위 : 리소스팩",
+  "koreanpatch.font.page": "%s / %s 쪽 · 폰트 %s개",
+  "koreanpatch.font.none": "설치된 폰트를 찾지 못했습니다"
+}

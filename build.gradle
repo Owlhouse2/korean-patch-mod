@@ -1,0 +1,118 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+}
+
+loom {
+    // 26.x 는 게임이 난독화 없이 배포되므로 매핑도, 리맵도 없다.
+    // 따라서 믹스인 refmap(난독화 이름 대응표)도 만들 이유가 없다 — 만들면 오히려
+    // "매핑을 못 찾는다"며 빌드가 실패한다.
+    mixin {
+        useLegacyMixinAp = false
+    }
+}
+
+dependencies {
+    // Minecraft 26.x 부터 게임이 난독화 없이 배포된다. 따라서 mappings 선언이 없고,
+    // 의존성도 modImplementation 이 아니라 implementation 을 쓴다 (리맵할 게 없다).
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+    // Fabric Loader 만 쓴다. Fabric API 는 의존하지 않는다 — 필요한 두 훅
+    // (클라이언트 시작, 일시정지 화면 위젯 추가)은 직접 믹스인으로 잡는다.
+    // 그래서 사용자는 이 jar 하나만 mods 에 넣으면 된다.
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    // fabric.mod.json 이 버전을 직접 들고 있지 않게 한다. 버전 업 때 gradle.properties 만 고치면 된다.
+    def props = [
+            version             : project.version,
+            minecraft_dependency: project.minecraft_dependency,
+            loader_version      : project.loader_version,
+            java_version        : project.java_version,
+    ]
+    props.each { k, v -> inputs.property(k, v) }
+
+    filesMatching('fabric.mod.json') {
+        expand props
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = Integer.parseInt(project.java_version)
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.toVersion(project.java_version)
+    targetCompatibility = JavaVersion.toVersion(project.java_version)
+}
+
+jar {
+    def projectName = project.name
+    inputs.property 'projectName', projectName
+    from('LICENSE') {
+        rename { "${it}_$projectName" }
+    }
+}
+
+/**
+ * 빌드한 jar 을 테스트용 폴더에 바로 넣는다.
+ *
+ * <p>넣기 전에 같은 모드의 예전 jar 을 지운다. 버전이 다른 두 개가 같이 있으면 패브릭이
+ * "모드 ID 중복"으로 게임 시작을 거부한다 — 빌드할 때마다 손으로 지우게 만들 이유가 없다.
+ * 지우는 대상은 이 프로젝트가 만든 파일 이름 형태로만 한정한다.
+ */
+def testModsDir = project.findProperty('test_mods_dir')
+
+tasks.register('installToTestMods') {
+    description = '빌드한 jar 을 test_mods_dir 로 복사한다.'
+    group = 'build'
+
+    doLast {
+        if (!testModsDir) {
+            return
+        }
+
+        def target = file(testModsDir)
+        target.mkdirs()
+
+        target.listFiles()?.each { existing ->
+            if (existing.isFile() && existing.name ==~ /^${project.archives_base_name}-.*\.jar$/) {
+                existing.delete()
+                logger.lifecycle("이전 jar 제거: ${existing.name}")
+            }
+        }
+
+        def built = fileTree(layout.buildDirectory.dir('libs')) {
+            include "${project.archives_base_name}-*.jar"
+            exclude '*-sources.jar'
+        }.files
+
+        if (built.isEmpty()) {
+            logger.warn('복사할 jar 을 찾지 못했다.')
+            return
+        }
+
+        built.each { jarFile ->
+            def destination = new File(target, jarFile.name)
+            destination.bytes = jarFile.bytes
+            logger.lifecycle("설치: ${destination}")
+        }
+    }
+}
+
+tasks.named('build') {
+    finalizedBy 'installToTestMods'
+}

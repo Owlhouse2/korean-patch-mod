@@ -1,0 +1,17 @@
+{
+  "koreanpatch.esc.screenshot": "Screenshots",
+  "koreanpatch.esc.servers": "Servers",
+  "koreanpatch.esc.font": "Font",
+
+  "koreanpatch.screenshot.failed": "Could not open the screenshots folder.",
+
+  "koreanpatch.font.title": "Font Settings",
+  "koreanpatch.font.vanilla": "Default (Minecraft)",
+  "koreanpatch.font.selected": "▶ %s",
+  "koreanpatch.font.search": "Search fonts",
+  "koreanpatch.font.size": "Text size: %s%%",
+  "koreanpatch.font.priority.mod": "Priority: this font",
+  "koreanpatch.font.priority.pack": "Priority: resource pack",
+  "koreanpatch.font.page": "Page %s / %s · %s fonts",
+  "koreanpatch.font.none": "No installed fonts found"
+}
